@@ -14,7 +14,12 @@ output : 정상 / 고장 혹은 정상/고장일 확률
 
 label 정보가 없기 때문에 비지도학습으로 output을 도출해야한다.
 
+<br>
+
+
 -------------------------
+
+<br>
 
 중성선이 0에 가까울수록 정상일 확률이 높고, 불평형률이 30% 이상이라면 고장날 확률이 높다.
 
@@ -28,23 +33,35 @@ label 정보가 없기 때문에 비지도학습으로 output을 도출해야한
 
 따라서 이 데이터가 이미 위상차 계산이 되어있다고 가정하고 프로젝트를 진행하였다.
 
+<br>
+
 -------------------
+
+<br>
 
 1. [01_load_and_save_minmax_and_plot](01_load_and_save_minmax_and_plot.ipynb) : 주어진 csv파일에서 데이터 분석, 필요한 feature 저장, image파일로 변환 및 저장(CNN 활용을 위해서)
 2. [02_draw_plot_by_dic_minmax.ipynb](02_draw_plot_by_dic_minmax.ipynb) : 데이터 시각화 및 linear Regression 수행
 3. [03_apply_dbscan.ipynb](03_apply_dbscan.ipynb) : DBSCAN로 clustering 수행
 4. [04_soft_clustering.ipynb](04_soft_clustering.ipynb) : k-means++를 통해 r+s+t의 합한 값의 max, min값을 clustering한 결과. 각 클러스터에 속할 확률 구하기
+5. [05_by_CRNN.ipynb](05_by_CRNN.ipynb) : CRNN 수행
+6. [06_교집합.ipynb](06_교집합.ipynb) : 구한 결과값 중 모든 모델이 이상치라고 판단한 개수 구하기
+
+<br>
+
+-----------------
+<br>
 
 ## 분류 방법 (4가지)
 
-### 1. [DBSCAN ( clustering )을 적용하여 전류계 고장 여부 확인](03_apply_dbscan.ipynb)
+### 1. DBSCAN ( clustering )을 적용하여 전류계 고장 여부 확인
+[코드 보기](03_apply_dbscan.ipynb)
 - dbscan_fail_list.pickle에 고장 여부 저장
 - DBSCAN은 밀도 기반 데이터 클러스터링 알고리즘으로 복잡한 형상의 데이터셋에도 적용 가능하다. ( 이 데이터셋에 적용하기 가장 적당하다고 생각하였다. )
 - '고장난 전류계는 주어진 csv파일에 이상치가 존재할 것이다.'
 - 하이퍼파라미터 조정
 
 ### 2. Linear Regression으로 고장 여부 확인 -> min, max값을 통해 확인
-[소스 보기](02_draw_plot_by_dic_minmax.ipynb)
+[코드 보기](02_draw_plot_by_dic_minmax.ipynb)
 
 - label이 없기 때문에 z값을 구하는 것으로 진행하였다.
 - 선형 회귀 적용
@@ -52,7 +69,8 @@ label 정보가 없기 때문에 비지도학습으로 output을 도출해야한
 
 
 
-### 3. [Clustering에서 중심점으로부터 얼마나 먼지 확인하여 정답일 확률 구하기](04_soft_clustering.ipynb)
+### 3. Clustering에서 중심점으로부터 얼마나 먼지 확인하여 정답일 확률 구하기
+[코드 보기](04_soft_clustering.ipynb)
 - probability_kmeans_plus.pickle에 k-means++로 구한 중심점을 통해 각 클러스터에 속할 확률 저장
 - 각 파일의 **r+s+t는 중성선**으로, 전류가 흐르지 않아야 정상이다.(**0에 근사**해야한다.)
 - r+s+t의 max값과 min값이 0과 근사하다면 정상, 차이가 크게난다면 비정상으로 가정한다.
@@ -63,4 +81,18 @@ label 정보가 없기 때문에 비지도학습으로 output을 도출해야한
 - K-means++
 
 
-### 4. 
+### 4. CRNN으로 고장 여부 확인
+[코드 보기](06_by_CRNN.ipynb)
+- label이 없기 때문에 모두 0으로 두고 x, y, z를 2차원 이미지에 그린 사진을 통해 이상치 탐지
+- CNN + RNN
+  - CNN : 사진 기반 데이터셋이기 때문에 CNN을 사용하였다.
+  - RNN : 순차 데이터이기 때문에 사용하였다.
+  - 메모리의 한계로 인해 최소한의 모델을 쌓았다.
+- train 데이터는 메모리의 한계로 인해 10000개만 적용
+- 결과값이 예상했던 바와 다르게 나왔기 때문에 수정 및 보완 필요
+
+
+## 결과
+
+![result](image/result.jpg)
+
